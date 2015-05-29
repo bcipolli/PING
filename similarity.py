@@ -81,6 +81,30 @@ def do_similarity(prefix, metric='partial-correlation', measures=None,
         # from research.multivariate import report_loadings
         # report_loadings(evals=evals, evecs=evecs, labels=np.asarray(labels))
         # Now print loadings, according to multivariate...
+
+
+        # Add in MDS
+        import pylab
+        from mpl_toolkits.mplot3d import Axes3D
+        from mpl_toolkits.mplot3d import proj3d
+        from sklearn.manifold import MDS
+        mds = MDS(n_components=3, max_iter=3000, eps=1e-9, random_state=1,
+                  dissimilarity="precomputed")
+        pos = mds.fit(mat).embedding_
+        fh = pylab.figure()
+        ax = fh.add_subplot(111, projection = '3d')
+        ax.scatter(pos[:, 0], pos[:, 1], pos[:, 2], s=20, c='g')
+
+        for label, x, y, z in zip(labels, pos[:, 0], pos[:, 1], pos[:, 2]):
+            x2, y2, _ = proj3d.proj_transform(x, y, z, ax.get_proj())
+            pylab.annotate(
+                label, 
+                xy = (x2, y2), xytext = (-20, 20),
+                textcoords = 'offset points', ha = 'right', va = 'bottom',
+                bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5),
+                arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3,rad=0'))
+        pylab.show()
+
     plt.show()
 
 
