@@ -83,7 +83,9 @@ def compute_group_asymmetry(data, xaxis_key, yaxis_key, grouping_keys):
     return group_names, group_x, group_y
 
 
-def plot_regressions(group_names, group_x, group_y):
+def plot_regressions(group_names, group_x, group_y, plotengine='matplotlib',
+                     xaxis_key=None, yaxis_key=None):
+
     n_subplots = len(group_names)
     n_rows = 1  # int(np.round(np.sqrt(n_subplots)))
     n_cols = n_subplots  # int(np.ceil(n_subplots / float(n_rows)))
@@ -100,14 +102,16 @@ def plot_regressions(group_names, group_x, group_y):
                       title='Group: %s (n=%d)' % (group_name, len(gy)))
         if gi > 0:
             del params['ylabel']
-        # ax1 = fh1.add_subplot(n_rows, n_cols, gi + 1)
+        ax1 = fh1.add_subplot(n_rows, n_cols, gi + 1)
         ax1 = fh1.gca()
         do_and_plot_regression(gx, gy, ax=ax1, colori=gi,
-                               show_std=(len(cur_x) > 200), **params)
-        ax1.set_title(measure_key)  # ax1.get_title().split('\n')[0])
+                               show_std=(len(gx) > 200),
+                               **params)
+        #ax1.set_title(measure_key)  # ax1.get_title().split('\n')[0])
     regressions = np.asarray(regressions)
     ax1.legend(group_names)
-    return regressions
+
+    return fh1
 
 
 def plot_distributions(group_names, group_x, group_y, xaxis_key, yaxis_key, n_bins=15):
@@ -134,6 +138,8 @@ def plot_distributions(group_names, group_x, group_y, xaxis_key, yaxis_key, n_bi
         ax2.set_ylim([0, 0.25])
     equalize_xlims(fh2)
     equalize_ylims(fh2)
+
+    return fh2
 
 
 def do_stats(group_names, group_x, group_y):
@@ -304,7 +310,9 @@ def do_grouping(prefixes, grouping_keys, xaxis_key='Age_At_IMGExam',
 
         kwargs.update(dict(group_names=group_names, group_x=group_x, group_y=group_y))
         if 'regressions' in plots:
-            plot_regressions(**kwargs)
+            fh = plot_regressions(**kwargs)
+            fh.name = '%s-%s-regressions' % (yaxis_key, '__'.join(grouping_keys))
+
         if 'distributions' in plots:
             plot_distributions(**kwargs)
         if 'stats' in plots:
@@ -323,7 +331,7 @@ def do_grouping(prefixes, grouping_keys, xaxis_key='Age_At_IMGExam',
     if 'stat_distributions' in plots:
         plot_stat_distributions(stats, group_names=group_names)
 
-    plt.show()
+    show_plots(plotengine=output_type, output_dir=output_dir)
 
 
 if __name__ == '__main__':
