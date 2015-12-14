@@ -317,12 +317,17 @@ class PINGData(object):
     @classmethod
     def prefix2text(klass, prefix):
         d = {
-            'MRI_cort_thick.ctx': 'Cortical thickness (mm)',
-            'MRI_cort_area.ctx': 'Cortical surface area (mm^2)',
-            'MRI_subcort_vol': 'Subcortical volume (mm^3)',
-            'DTI_fiber_vol': 'Fiber tract volume (via DTI) (mm^3)',
-            'DTI_fiber_FA': 'Fiber tract fractional anisotropy (FA)'}
-        return d.get(prefix, prefix)
+            'MRI_cort_thick.ctx.': 'Cortical thickness (mm)',
+            'MRI_cort_area.ctx.': 'Cortical surface area (mm^2)',
+            'MRI_subcort_vol.': 'Subcortical volume (mm^3)',
+            'DTI_fiber_vol.': 'Fiber tract volume (via DTI) (mm^3)',
+            'DTI_fiber_FA.': 'Fiber tract fractional anisotropy (FA)'}
+        if prefix in d:
+            return d[prefix]
+        imperfect_matches = filter(lambda k: k.startswith(prefix), d.keys())
+        if imperfect_matches:
+            return d[imperfect_matches[0]]
+        return prefix
 
     @classmethod
     def get_measure_key(klass, common_key, measure_keys):
