@@ -1,14 +1,17 @@
 """
 """
 import os
+import os.path as op
 import subprocess
 import sys
 import warnings
 
 import matplotlib
 from nose.core import unittest
-from nose.tools import assert_in, assert_true, assert_raises, assert_equal
+from nose.tools import assert_in, assert_true, assert_equal
 from six import StringIO, string_types
+
+from ping.ping.apps.snps import PINGSNPSession
 
 
 class TestWithNonblockingPlots(object):
@@ -130,16 +133,25 @@ class TestSimilarity(TestWithGoodies):
 
 
 class TestSnps(TestWithGoodies):
+    def setUp(self):
+        import tempfile
+        self.data_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        import shutil
+        # shutil.rmtree(self.data_dir)
 
     def test_snp_usage(self):
-        stdout, usage_text = self.exec_pyfile('snps.py')
+        stdout, usage_text = self.exec_pyfile('snps.py --data-dir %s' % self.data_dir)
         assert_in("snps.py", usage_text, 'usage with no parameters')
         assert_equal(stdout, "", 'stdout should be empty; instead=="%s"' % stdout)
 
-        stdout, usage_text = self.exec_pyfile('snps.py 1 2 3 4 5 6 7 8 9 10 11 12')
+        stdout, usage_text = self.exec_pyfile('snps.py 1 2 3 4 5 6 7 8 9 10 11 12 --data-dir %s' % self.data_dir)
         assert_in("snps.py", usage_text, 'usage with many parameters')
         assert_equal(stdout, "", 'stdout should be empty; instead=="%s"' % stdout)
 
     def test_snp_view(self):
-        _, stderr = self.exec_pyfile('snps.py view STK31 --username dummy --passwd dummy')
+        stdout, stderr = self.exec_pyfile('snps.py view STK31 --username dummy --passwd dummy --data-dir %s' % self.data_dir)
         assert_equal(stderr, "", 'stderr should be empty; instead=="%s"' % stderr)
+        assert_true(op.exists(op.join(self.data_dir, PINGSNPSession.genes_metadata_file)))
+        assert_true(op.exists(op.join(self.data_dir, PINGSNPSession.SNP_metadata_file)))

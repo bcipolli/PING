@@ -92,11 +92,13 @@ def do_snps_datadump(action, snp_gene, output_format='print',
 
     if snp_gene.startswith('rs'):
         do_snps(action=action, snp=snp_gene, output_format=output_format,
-                output_dir=output_dir, username=username, passwd=passwd)
+                output_dir=output_dir, data_dir=data_dir,
+                username=username, passwd=passwd)
 
     else:
         do_genes(action=action, gene=snp_gene, output_format=output_format,
-                 output_dir=output_dir, username=username, passwd=passwd)
+                 output_dir=output_dir, data_dir=data_dir,
+                 username=username, passwd=passwd)
 
 
 if __name__ == '__main__':
